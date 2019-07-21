@@ -15,6 +15,19 @@ def positive_int_domain(f, *args, **kwargs):
     return _func
 
 
+def non_negative_int_domain(f, *args, **kwargs):
+    """Restrict funcion's domain to Z+."""
+    @functools.wraps(f)
+    def _func(*args, **kwargs):
+        for arg in args:
+            if arg < 0:
+                raise ValueError(f'Function {f.__name__} only works with non-negative values. Got {arg}.')
+            if type(arg) != int:
+                raise TypeError(f'Function {f.__name__} only works with integers. Got a(n) {type(arg)} value.')
+        return f(*args, **kwargs)
+    return _func
+
+
 class primes(object):
     def __init__(self, start, stop):
         self.start = start if start >= 2 else 2
@@ -56,11 +69,15 @@ def is_prime(n):
 
 
 @positive_int_domain
-def is_relatively_prime(n, to):
-    """Returns whether or not `n` is relatively prime to `to`."""
-    if n == 1 or to % n:
-        return True
-    return False
+def is_relatively_prime(n, m):
+    """Returns whether or not `n` is relatively prime to `m`."""
+    min_ = min(n, m)
+    i = 2
+    while i <= min_:
+        if (not n % i) and (not m % i):
+            return False
+        i += 1
+    return True
 
 
 @positive_int_domain
@@ -91,5 +108,54 @@ def product(arr):
     return result
 
 
+@non_negative_int_domain
+def get_rank(n):
+    """How many digits a number has in decimal notation."""
+    rank = 0
+    while n:
+        rank += 1
+        n //= 10
+    return rank
+
+
+@positive_int_domain
+def is_palindromic_dummy(n):
+    """Figure out whether `n` is palindromic in decimal system using strings."""
+    if n < 10:
+        return True
+    string_repr = str(n)
+    rank = len(string_repr)
+    if not rank % 2:
+        return string_repr[:rank//2] == string_repr[-1:-rank//2-1:-1]
+    else:
+        return string_repr[:rank//2] == string_repr[-1:-rank//2:-1]
+
+
+def is_palindromic(n):
+    """Figure out whether `n` is palindromic in decimal system."""
+    if n < 10:
+        return True
+    rank = get_rank(n)
+    power = pow(10, rank-1)
+    print(power)
+    if n // power != n % 10:
+        return False
+
+    next_n = (n % power) // 10
+    print(next_n)
+    next_rank = get_rank(next_n)
+    if next_n == 0:
+        return n // 10 == n % 10
+    elif rank - next_rank == 2:
+        return is_palindromic(next_n)
+    elif not next_n % 10:
+        return is_palindromic(next_n // 10)
+    else:
+        return False
+
+
 if __name__ == "__main__":
-    print([i for i in iter(primes(2, 50))])
+    for n in range(101, 102):
+        if is_palindromic(n) != is_palindromic_dummy(n):
+            #print(n, is_palindromic_dummy(n))
+            is_palindromic(n)
