@@ -118,7 +118,7 @@ def get_rank(n):
     return rank
 
 
-@positive_int_domain
+@non_negative_int_domain
 def is_palindromic_dummy(n):
     """Figure out whether `n` is palindromic in decimal system using strings."""
     if n < 10:
@@ -131,31 +131,38 @@ def is_palindromic_dummy(n):
         return string_repr[:rank//2] == string_repr[-1:-rank//2:-1]
 
 
+@non_negative_int_domain
 def is_palindromic(n):
     """Figure out whether `n` is palindromic in decimal system."""
+
+    # Treating one-digit numbers as base case.
     if n < 10:
         return True
+    
     rank = get_rank(n)
-    power = pow(10, rank-1)
-    print(power)
-    if n // power != n % 10:
+    if n // pow(10, rank-1) != n % 10:
         return False
-
-    next_n = (n % power) // 10
-    print(next_n)
-    next_rank = get_rank(next_n)
-    if next_n == 0:
-        return n // 10 == n % 10
-    elif rank - next_rank == 2:
-        return is_palindromic(next_n)
-    elif not next_n % 10:
-        return is_palindromic(next_n // 10)
     else:
-        return False
+        next_n = (n % pow(10, rank-1)) // 10
+        next_rank = get_rank(next_n)
+        #print(f'n = {n}, rank={rank}, next_n = {next_n}, next_rank = {next_rank}')
+        if rank - next_rank == 2:
+            return is_palindromic(next_n)
+        else:
+            if not next_n % 10:
+                return is_palindromic(next_n // 10)
+            else:
+                return False
+            
+
+@np.factorize
+def is_integer(n):
+    """Returns whether `n` is an integer."""
+    return not n % 1
 
 
 if __name__ == "__main__":
-    for n in range(101, 102):
+    print('WRONG:')
+    for n in range(1000001):
         if is_palindromic(n) != is_palindromic_dummy(n):
-            #print(n, is_palindromic_dummy(n))
-            is_palindromic(n)
+            print(n, end='; ')
