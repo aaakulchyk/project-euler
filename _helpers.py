@@ -155,14 +155,14 @@ def is_palindromic(n):
                 return False
             
 
-@np.factorize
 def is_integer(n):
     """Returns whether `n` is an integer."""
     return not n % 1
 
 
-if __name__ == "__main__":
-    print('WRONG:')
-    for n in range(1000001):
-        if is_palindromic(n) != is_palindromic_dummy(n):
-            print(n, end='; ')
+def digits_product(digits):
+    """Find the product of all digits in `digits: iterable`."""
+    prod = 1
+    for d in digits:
+        prod *= int(d)
+    return prod
